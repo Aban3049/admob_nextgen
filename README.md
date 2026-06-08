@@ -29,7 +29,10 @@ bundled `ads-mobile-sdk` dependency to `1.1.1`.
 
 ## Demo
 
-Add your demo GIF or video here before publishing:
+![Banner Ad](https://raw.githubusercontent.com/Aban3049/admob_nextgen/main/screenshots/banner.webp)
+
+![Native Ad](https://raw.githubusercontent.com/Aban3049/admob_nextgen/main/screenshots/native.webp)
+
 
 ## Features
 
@@ -43,6 +46,7 @@ Add your demo GIF or video here before publishing:
   - `NativeSmallAdView`
   - `NativeLargeAdView`
 - Native ad styling for card color, CTA button, title, description, and ad badge.
+
 
 ## Installation
 
