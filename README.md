@@ -53,7 +53,7 @@ Add the package to `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  admob_nextgen: ^0.1.0-beta.1
+  admob_nextgen: ^0.1.0-beta.2
 ```
 
 Then run:
