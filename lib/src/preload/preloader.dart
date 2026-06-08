@@ -1,7 +1,7 @@
 import '../core/ad_request.dart';
 import '../core/channel.dart';
 import '../interstitial/interstitial_ad.dart';
-import '../rewarded/rewarded_Interstitial/rewarded_interstitial_ad.dart';
+import '../rewarded/rewarded_interstitial/rewarded_interstitial_ad.dart';
 
 /// Pool-based preloader for [InterstitialAd]s — the GMA Next-Gen SDK loads
 /// ads ahead of time so [poll] returns instantly.

@@ -7,3 +7,4 @@ coverage/
 pubspec.lock
 example/build/
 example/.dart_tool/
+doc/api/

@@ -5,7 +5,7 @@ import 'package:flutter/foundation.dart';
 import '../core/ad_error.dart';
 import '../core/ad_request.dart';
 import '../core/channel.dart';
-import 'rewarded_Interstitial/rewarded_interstitial_ad.dart';
+import 'rewarded_interstitial/rewarded_interstitial_ad.dart';
 
 /// Lifecycle callbacks fired by a [RewardedAd].
 class RewardedAdListener {

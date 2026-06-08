@@ -11,6 +11,13 @@ Beta note: this package targets Android only. iOS is not implemented yet.
 This is an unofficial Flutter plugin. It is not published, endorsed, or
 maintained by Google.
 
+## Preview
+
+| Banner placement | Native ad templates |
+| --- | --- |
+| ![admob_nextgen banner example](https://raw.githubusercontent.com/Aban3049/admob_nextgen/main/screenshots/banner.webp) | ![admob_nextgen native ad templates](https://raw.githubusercontent.com/Aban3049/admob_nextgen/main/screenshots/native.webp) |
+
+
 ## Known SDK issue
 
 Google's GMA Next-Gen SDK release notes say version `1.1.1` fixes an issue
@@ -26,12 +33,6 @@ https://support.google.com/admob/thread/438640611/admob-next-gen-1-1-0-fatal-exc
 
 Until that native SDK crash situation is clear, this package is not bumping the
 bundled `ads-mobile-sdk` dependency to `1.1.1`.
-
-## Demo
-
-![Banner Ad](https://raw.githubusercontent.com/Aban3049/admob_nextgen/main/screenshots/banner.webp)
-![Native Ad](https://raw.githubusercontent.com/Aban3049/admob_nextgen/main/screenshots/native.webp)
-
 
 ## Features
 
@@ -53,7 +54,7 @@ Add the package to `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  admob_nextgen: ^0.1.0-beta.2
+  admob_nextgen: ^0.1.0-beta.3
 ```
 
 Then run:

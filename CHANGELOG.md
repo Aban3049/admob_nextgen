@@ -1,3 +1,12 @@
+## 0.1.0-beta.3
+
+- Fixed Linux/pub.dev analysis failures caused by case-sensitive Dart source paths.
+- Renamed interstitial and rewarded interstitial source directories to lowercase Dart file convention paths.
+- Updated package exports and imports for the normalized paths.
+- Improved pub.dev README preview with banner and native ad screenshots.
+- Consolidated the example app into `example/lib/main.dart` so pub.dev shows the full example code.
+- Excluded generated dartdoc output from publish archives.
+
 ## 0.1.0-beta.2
 
 - Updated README.

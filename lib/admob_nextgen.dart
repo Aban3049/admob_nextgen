@@ -26,6 +26,6 @@ export 'src/core/request_configuration.dart' hide applyRequestConfiguration;
 export 'src/app_open/app_open_ad.dart';
 export 'src/interstitial/interstitial_ad.dart';
 export 'src/rewarded/rewarded_ad.dart';
-export 'src/rewarded/rewarded_Interstitial/rewarded_interstitial_ad.dart';
+export 'src/rewarded/rewarded_interstitial/rewarded_interstitial_ad.dart';
 export 'src/native/native_ad.dart';
 export 'src/preload/preloader.dart';
