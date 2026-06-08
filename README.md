@@ -30,7 +30,6 @@ bundled `ads-mobile-sdk` dependency to `1.1.1`.
 ## Demo
 
 ![Banner Ad](https://raw.githubusercontent.com/Aban3049/admob_nextgen/main/screenshots/banner.webp)
-
 ![Native Ad](https://raw.githubusercontent.com/Aban3049/admob_nextgen/main/screenshots/native.webp)
 
 
