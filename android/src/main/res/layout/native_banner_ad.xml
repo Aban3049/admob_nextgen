@@ -67,10 +67,5 @@
                 android:textStyle="bold" />
         </LinearLayout>
 
-        <com.google.android.libraries.ads.mobile.sdk.nativead.MediaView
-            android:id="@+id/ad_media"
-            android:layout_width="1dp"
-            android:layout_height="1dp"
-            android:visibility="gone" />
     </LinearLayout>
 </com.google.android.libraries.ads.mobile.sdk.nativead.NativeAdView>

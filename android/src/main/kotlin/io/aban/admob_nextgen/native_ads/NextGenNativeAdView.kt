@@ -30,6 +30,7 @@ internal class NextGenNativeAdView(
 ) : PlatformView {
 
     private val container = FrameLayout(context)
+    private var disposed = false
 
     init {
         val adId = creationParams["adId"] as? String
@@ -55,7 +56,7 @@ internal class NextGenNativeAdView(
         val badge = root.findViewById<TextView>(R.id.ad_badge)
         val callToAction = root.findViewById<Button>(R.id.ad_call_to_action)
         val icon = root.findViewById<ImageView>(R.id.ad_icon)
-        val media = root.findViewById<MediaView>(R.id.ad_media)
+        val media: MediaView? = root.findViewById(R.id.ad_media)
         applyStyles(root, headline, body, badge, callToAction, creationParams)
 
         root.headlineView = headline
@@ -76,13 +77,30 @@ internal class NextGenNativeAdView(
         callToAction.visibility = callToActionText.visibilityOrGone()
         icon.visibility = nativeAd.icon.visibilityOrGone()
 
-        root.registerNativeAd(nativeAd, media)
         container.addView(root)
+
+        if (layout == NativeAdLayout.LARGE) {
+            val largeMedia = requireNotNull(media) {
+                "Large native ad layout must contain a MediaView."
+            }
+            // Flutter creates the platform view before its first layout pass.
+            // Wait until the MediaView has a real measured size so the Native
+            // Validator does not inspect it as 0x0.
+            largeMedia.post {
+                if (!disposed && largeMedia.isAttachedToWindow) {
+                    root.registerNativeAd(nativeAd, largeMedia)
+                }
+            }
+        } else {
+            // Banner and small templates intentionally do not render media.
+            root.registerNativeAd(nativeAd, null)
+        }
     }
 
     override fun getView(): View = container
 
     override fun dispose() {
+        disposed = true
         container.removeAllViews()
     }
 

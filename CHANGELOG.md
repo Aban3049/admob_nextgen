@@ -1,3 +1,12 @@
+## 0.1.0-beta.4
+
+- Fixed Native Validator errors for banner and small native ad templates by
+  registering them without hidden undersized media views.
+- Fixed false Native Validator media-size errors for large native ads by
+  registering the media view after Android completes its first layout pass.
+- Prevented delayed large native ad registration after the platform view has
+  been disposed.
+
 ## 0.1.0-beta.3
 
 - Fixed Linux/pub.dev analysis failures caused by case-sensitive Dart source paths.
