@@ -61,5 +61,6 @@ dependencies {
     testImplementation("org.mockito:mockito-core:5.0.0")
     implementation("com.google.android.libraries.ads.mobile.sdk:ads-mobile-sdk:1.0.1")
     implementation("com.google.android.ump:user-messaging-platform:4.0.0")
+    implementation("androidx.lifecycle:lifecycle-process:2.10.0")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1")
 }

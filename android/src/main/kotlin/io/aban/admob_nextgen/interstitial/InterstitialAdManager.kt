@@ -83,15 +83,14 @@ internal class InterstitialAdManager(
             result.success(null)
         } catch (t: Throwable) {
             coordinator.release(adId)
-            ads.remove(adId)
+            remove(adId)
             result.error("SHOW_FAILED", t.message, null)
         }
     }
 
     fun dispose(adId: String) {
         if (coordinator.isActive(adId)) return
-        val ad = ads.remove(adId) ?: return
-        ad.adEventCallback = null
+        remove(adId)
     }
 
     /** Adopts a preloaded interstitial for the standard show flow. */
@@ -111,7 +110,7 @@ internal class InterstitialAdManager(
             override fun onAdDismissedFullScreenContent() {
                 invokeOnMain { channel.invokeMethod("onInterstitialDismissed", mapOf("adId" to adId)) }
                 coordinator.release(adId)
-                ads.remove(adId)
+                remove(adId)
             }
 
             override fun onAdFailedToShowFullScreenContent(error: FullScreenContentError) {
@@ -123,7 +122,7 @@ internal class InterstitialAdManager(
                     )
                 }
                 coordinator.release(adId)
-                ads.remove(adId)
+                remove(adId)
             }
 
             override fun onAdImpression() {
@@ -138,5 +137,10 @@ internal class InterstitialAdManager(
 
     private fun invokeOnMain(block: () -> Unit) {
         if (Looper.myLooper() == Looper.getMainLooper()) block() else mainHandler.post(block)
+    }
+
+    private fun remove(adId: String) {
+        val ad = ads.remove(adId) ?: return
+        ad.adEventCallback = null
     }
 }

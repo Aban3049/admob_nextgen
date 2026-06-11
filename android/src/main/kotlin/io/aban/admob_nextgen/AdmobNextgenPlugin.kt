@@ -6,6 +6,7 @@ import android.content.pm.PackageManager
 import com.google.android.libraries.ads.mobile.sdk.MobileAds
 import com.google.android.libraries.ads.mobile.sdk.initialization.InitializationConfig
 import io.aban.admob_nextgen.app_open.AppOpenAdManager
+import io.aban.admob_nextgen.app_state.AppStateNotifier
 import io.aban.admob_nextgen.banner.BannerAdViewFactory
 import io.aban.admob_nextgen.consent.ConsentManager
 import io.aban.admob_nextgen.core.applyRequestConfiguration
@@ -50,6 +51,7 @@ class AdmobNextgenPlugin : FlutterPlugin, ActivityAware, MethodChannel.MethodCal
     private lateinit var appOpenManager: AppOpenAdManager
     private lateinit var consentManager: ConsentManager
     private lateinit var nativeAdManager: NativeAdManager
+    private lateinit var appStateNotifier: AppStateNotifier
 
     @Volatile
     private var hostActivity: Activity? = null
@@ -65,6 +67,7 @@ class AdmobNextgenPlugin : FlutterPlugin, ActivityAware, MethodChannel.MethodCal
         appOpenManager = AppOpenAdManager(channel, fullScreenCoordinator)
         consentManager = ConsentManager(appContext)
         nativeAdManager = NativeAdManager(channel)
+        appStateNotifier = AppStateNotifier(binding.binaryMessenger)
 
         binding.platformViewRegistry.registerViewFactory(
             BANNER_VIEW_TYPE,
@@ -89,6 +92,7 @@ class AdmobNextgenPlugin : FlutterPlugin, ActivityAware, MethodChannel.MethodCal
     }
 
     override fun onDetachedFromEngine(binding: FlutterPlugin.FlutterPluginBinding) {
+        appStateNotifier.dispose()
         channel.setMethodCallHandler(null)
         nativeAdManager.disposeAll()
     }

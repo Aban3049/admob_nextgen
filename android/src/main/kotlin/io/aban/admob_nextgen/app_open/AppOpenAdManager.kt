@@ -80,7 +80,7 @@ internal class AppOpenAdManager(
             return
         }
         if (isExpired(entry)) {
-            ads.remove(adId)
+            remove(adId)
             result.error("AD_EXPIRED", "App open ad expired (loaded > 4h ago).", null)
             return
         }
@@ -93,7 +93,7 @@ internal class AppOpenAdManager(
             result.success(null)
         } catch (t: Throwable) {
             coordinator.release(adId)
-            ads.remove(adId)
+            remove(adId)
             result.error("SHOW_FAILED", t.message, null)
         }
     }
@@ -102,15 +102,14 @@ internal class AppOpenAdManager(
         val entry = ads[adId]
         val available = entry != null && !isExpired(entry)
         if (entry != null && !available) {
-            ads.remove(adId)
+            remove(adId)
         }
         result.success(available)
     }
 
     fun dispose(adId: String) {
         if (coordinator.isActive(adId)) return
-        val entry = ads.remove(adId) ?: return
-        entry.ad.adEventCallback = null
+        remove(adId)
     }
 
     private fun isExpired(entry: Entry): Boolean =
@@ -125,7 +124,7 @@ internal class AppOpenAdManager(
             override fun onAdDismissedFullScreenContent() {
                 invokeOnMain { channel.invokeMethod("onAppOpenDismissed", mapOf("adId" to adId)) }
                 coordinator.release(adId)
-                ads.remove(adId)
+                remove(adId)
             }
 
             override fun onAdFailedToShowFullScreenContent(error: FullScreenContentError) {
@@ -137,7 +136,7 @@ internal class AppOpenAdManager(
                     )
                 }
                 coordinator.release(adId)
-                ads.remove(adId)
+                remove(adId)
             }
 
             override fun onAdImpression() {
@@ -152,5 +151,10 @@ internal class AppOpenAdManager(
 
     private fun invokeOnMain(block: () -> Unit) {
         if (Looper.myLooper() == Looper.getMainLooper()) block() else mainHandler.post(block)
+    }
+
+    private fun remove(adId: String) {
+        val entry = ads.remove(adId) ?: return
+        entry.ad.adEventCallback = null
     }
 }

@@ -54,7 +54,7 @@ Add the package to `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  admob_nextgen: ^0.1.0-beta.3
+  admob_nextgen: ^0.1.0-beta.5
 ```
 
 Then run:
@@ -145,7 +145,7 @@ final ad = await InterstitialAd.load(
 
 ad.listener = InterstitialAdListener(
   onAdDismissedFullScreenContent: () {
-    ad.dispose();
+    print('Interstitial dismissed');
   },
 );
 
@@ -186,6 +186,16 @@ Load an app open ad, then show it when the app returns to the foreground:
 
 ```dart
 AppOpenAd? appOpenAd;
+StreamSubscription<AppState>? appStateSubscription;
+
+Future<void> startAppOpenAds() async {
+  await AppStateEventNotifier.startListening();
+  appStateSubscription = AppStateEventNotifier.appStateStream.listen((state) {
+    if (state == AppState.foreground) {
+      showAppOpenAdIfAvailable();
+    }
+  });
+}
 
 Future<void> loadAppOpenAd() async {
   appOpenAd = await AppOpenAd.load(
@@ -200,7 +210,15 @@ Future<void> showAppOpenAdIfAvailable() async {
   appOpenAd = null;
   await ad.show();
 }
+
+Future<void> stopAppOpenAds() async {
+  await appStateSubscription?.cancel();
+  await AppStateEventNotifier.stopListening();
+}
 ```
+
+`AppStateEventNotifier` uses the Android process lifecycle, so opening and
+closing a full-screen ad is not mistaken for leaving and returning to the app.
 
 ## Native ads
 
@@ -337,3 +355,40 @@ final ad = await InterstitialAd.load(
   request: request,
 );
 ```
+
+## Migrating from `google_mobile_ads`
+
+Replace the package import:
+
+```dart
+import 'package:admob_nextgen/admob_nextgen.dart';
+```
+
+`AppState`, `AppStateEventNotifier.startListening()`, `stopListening()`, and
+`appStateStream` keep the same usage pattern as `google_mobile_ads`.
+
+App open and interstitial loading is Future-first. Replace Google load
+callbacks with `await` and `try/catch`:
+
+```dart
+try {
+  final ad = await InterstitialAd.load(adUnitId: interstitialAdUnitId);
+  ad.listener = InterstitialAdListener(
+    onAdDismissedFullScreenContent: createInterstitialAd,
+    onAdFailedToShowFullScreenContent: (_) => createInterstitialAd(),
+  );
+  await ad.show();
+} on AdLoadException catch (error) {
+  print('Interstitial load failed: ${error.error}');
+}
+```
+
+For app open ads, use the same pattern with `AppOpenAd.load()` and
+`AppOpenAdListener`. Replace `fullScreenContentCallback` with `listener`.
+Dismissed and failed-to-show ads are consumed and released automatically, so
+do not call `dispose()` from terminal full-screen callbacks. Explicitly call
+`dispose()` only when abandoning a loaded ad before showing it.
+
+Native ads and banners use this package's template/widget APIs and are not
+drop-in replacements for the old `AdWidget`, custom native factories, or
+`BannerAd` constructor.

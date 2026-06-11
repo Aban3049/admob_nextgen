@@ -41,7 +41,9 @@ class InterstitialAdListener {
 /// }
 /// ```
 class InterstitialAd {
-  InterstitialAd._({required this.adId, required this.adUnitId});
+  InterstitialAd._({required this.adId, required this.adUnitId}) {
+    _wireHandlers();
+  }
 
   /// Wraps a native ad adopted from the interstitial preloader.
   @internal
@@ -53,32 +55,33 @@ class InterstitialAd {
   final String adId;
   final String adUnitId;
 
-  InterstitialAdListener? _listener;
+  /// Optional lifecycle callbacks. May be replaced or cleared before [show].
+  InterstitialAdListener? listener;
   bool _disposed = false;
+  bool _showing = false;
 
-  /// Attach lifecycle callbacks. Call before [show].
-  set listener(InterstitialAdListener? value) {
-    _listener = value;
-    if (value == null) {
-      AdsChannel.instance.unregister(adId);
-      return;
-    }
+  void _wireHandlers() {
     AdsChannel.instance.register(adId, {
-      'onInterstitialShowed': (_) => value.onAdShowedFullScreenContent?.call(),
+      'onInterstitialShowed': (_) =>
+          listener?.onAdShowedFullScreenContent?.call(),
       'onInterstitialDismissed': (_) {
-        value.onAdDismissedFullScreenContent?.call();
-        _markConsumed();
+        try {
+          listener?.onAdDismissedFullScreenContent?.call();
+        } finally {
+          _markConsumed();
+        }
       },
       'onInterstitialFailedToShow': (a) {
-        value.onAdFailedToShowFullScreenContent?.call(AdError.fromMap(a));
-        _markConsumed();
+        try {
+          listener?.onAdFailedToShowFullScreenContent?.call(AdError.fromMap(a));
+        } finally {
+          _markConsumed();
+        }
       },
-      'onInterstitialImpression': (_) => value.onAdImpression?.call(),
-      'onInterstitialClicked': (_) => value.onAdClicked?.call(),
+      'onInterstitialImpression': (_) => listener?.onAdImpression?.call(),
+      'onInterstitialClicked': (_) => listener?.onAdClicked?.call(),
     });
   }
-
-  InterstitialAdListener? get listener => _listener;
 
   /// Load a single interstitial ad. Use AdMob's sample unit ID
   /// `ca-app-pub-3940256099942544/1033173712` for testing.
@@ -108,9 +111,18 @@ class InterstitialAd {
     if (_disposed) {
       throw StateError('InterstitialAd has already been disposed.');
     }
-    await AdsChannel.instance.channel.invokeMethod<void>('showInterstitial', {
-      'adId': adId,
-    });
+    if (_showing) {
+      throw StateError('InterstitialAd is already showing.');
+    }
+    _showing = true;
+    try {
+      await AdsChannel.instance.channel.invokeMethod<void>('showInterstitial', {
+        'adId': adId,
+      });
+    } catch (_) {
+      _showing = false;
+      rethrow;
+    }
   }
 
   /// Release native references to this ad. Always call when done.
@@ -126,6 +138,7 @@ class InterstitialAd {
 
   void _markConsumed() {
     _disposed = true;
+    _showing = false;
     AdsChannel.instance.unregister(adId);
   }
 }

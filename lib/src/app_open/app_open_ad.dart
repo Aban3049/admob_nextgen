@@ -27,39 +27,42 @@ class AppOpenAdListener {
 ///
 /// App open ads expire 4 hours after they are loaded; use [isAvailable] to
 /// check before calling [show]. Typical usage is to keep one loaded and
-/// trigger [show] from a [WidgetsBindingObserver] when
-/// `AppLifecycleState.resumed` fires.
+/// trigger [show] when `AppStateEventNotifier.appStateStream` reports that the
+/// app returned to the foreground.
 class AppOpenAd {
-  AppOpenAd._({required this.adId, required this.adUnitId});
+  AppOpenAd._({required this.adId, required this.adUnitId}) {
+    _wireHandlers();
+  }
 
   final String adId;
   final String adUnitId;
 
-  AppOpenAdListener? _listener;
+  /// Optional lifecycle callbacks. May be replaced or cleared before [show].
+  AppOpenAdListener? listener;
   bool _disposed = false;
+  bool _showing = false;
 
-  set listener(AppOpenAdListener? value) {
-    _listener = value;
-    if (value == null) {
-      AdsChannel.instance.unregister(adId);
-      return;
-    }
+  void _wireHandlers() {
     AdsChannel.instance.register(adId, {
-      'onAppOpenShowed': (_) => value.onAdShowedFullScreenContent?.call(),
+      'onAppOpenShowed': (_) => listener?.onAdShowedFullScreenContent?.call(),
       'onAppOpenDismissed': (_) {
-        value.onAdDismissedFullScreenContent?.call();
-        _markConsumed();
+        try {
+          listener?.onAdDismissedFullScreenContent?.call();
+        } finally {
+          _markConsumed();
+        }
       },
       'onAppOpenFailedToShow': (a) {
-        value.onAdFailedToShowFullScreenContent?.call(AdError.fromMap(a));
-        _markConsumed();
+        try {
+          listener?.onAdFailedToShowFullScreenContent?.call(AdError.fromMap(a));
+        } finally {
+          _markConsumed();
+        }
       },
-      'onAppOpenImpression': (_) => value.onAdImpression?.call(),
-      'onAppOpenClicked': (_) => value.onAdClicked?.call(),
+      'onAppOpenImpression': (_) => listener?.onAdImpression?.call(),
+      'onAppOpenClicked': (_) => listener?.onAdClicked?.call(),
     });
   }
-
-  AppOpenAdListener? get listener => _listener;
 
   /// Load a single app open ad. Sample test unit:
   /// `ca-app-pub-3940256099942544/9257395921`.
@@ -101,9 +104,18 @@ class AppOpenAd {
     if (_disposed) {
       throw StateError('AppOpenAd has already been consumed or disposed.');
     }
-    await AdsChannel.instance.channel.invokeMethod<void>('showAppOpen', {
-      'adId': adId,
-    });
+    if (_showing) {
+      throw StateError('AppOpenAd is already showing.');
+    }
+    _showing = true;
+    try {
+      await AdsChannel.instance.channel.invokeMethod<void>('showAppOpen', {
+        'adId': adId,
+      });
+    } catch (_) {
+      _showing = false;
+      rethrow;
+    }
   }
 
   Future<void> dispose() async {
@@ -117,6 +129,7 @@ class AppOpenAd {
 
   void _markConsumed() {
     _disposed = true;
+    _showing = false;
     AdsChannel.instance.unregister(adId);
   }
 }

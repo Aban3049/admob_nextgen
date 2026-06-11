@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:admob_nextgen/admob_nextgen.dart';
 import 'package:flutter/material.dart';
 
@@ -692,15 +694,14 @@ class DemoHomePage extends StatefulWidget {
   State<DemoHomePage> createState() => _DemoHomePageState();
 }
 
-class _DemoHomePageState extends State<DemoHomePage>
-    with WidgetsBindingObserver {
+class _DemoHomePageState extends State<DemoHomePage> {
   AppOpenAd? _appOpenAd;
+  StreamSubscription<AppState>? _appStateSubscription;
   NativeAd? _nativeBannerAd;
   NativeAd? _nativeSmallAd;
   NativeAd? _nativeLargeAd;
 
   bool _nativeLoading = false;
-  bool _wasInBackground = false;
   bool _isFullScreenAdShowing = false;
   bool _isShowingAppOpenAd = false;
   String _status = 'Ready.';
@@ -709,7 +710,14 @@ class _DemoHomePageState extends State<DemoHomePage>
   void initState() {
     super.initState();
     _status = widget.startupStatus;
-    WidgetsBinding.instance.addObserver(this);
+    unawaited(AppStateEventNotifier.startListening());
+    _appStateSubscription = AppStateEventNotifier.appStateStream.listen((
+      state,
+    ) {
+      if (state == AppState.foreground) {
+        _maybeShowAppOpenAd();
+      }
+    });
     if (widget.adsReady) {
       _preloadAppOpenAd();
     }
@@ -717,27 +725,13 @@ class _DemoHomePageState extends State<DemoHomePage>
 
   @override
   void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
+    unawaited(_appStateSubscription?.cancel());
+    unawaited(AppStateEventNotifier.stopListening());
     _appOpenAd?.dispose();
     _nativeBannerAd?.dispose();
     _nativeSmallAd?.dispose();
     _nativeLargeAd?.dispose();
     super.dispose();
-  }
-
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    switch (state) {
-      case AppLifecycleState.resumed:
-        _onAppReturnedToForeground();
-      case AppLifecycleState.hidden:
-      case AppLifecycleState.paused:
-        if (!_isFullScreenAdShowing) {
-          _wasInBackground = true;
-        }
-      case AppLifecycleState.detached:
-      case AppLifecycleState.inactive:
-    }
   }
 
   Future<void> _preloadAppOpenAd() async {
@@ -762,12 +756,6 @@ class _DemoHomePageState extends State<DemoHomePage>
     } on AdLoadException catch (e) {
       if (mounted) setState(() => _status = 'App open load failed: ${e.error}');
     }
-  }
-
-  void _onAppReturnedToForeground() {
-    if (!_wasInBackground) return;
-    _wasInBackground = false;
-    _maybeShowAppOpenAd();
   }
 
   Future<void> _maybeShowAppOpenAd() async {

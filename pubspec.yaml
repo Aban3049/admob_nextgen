@@ -1,6 +1,6 @@
 name: admob_nextgen
 description: A beta Flutter plugin for Android Google Mobile Ads Next-Gen SDK with consent, banners, fullscreen ads, preloaders, and customizable native templates.
-version: 0.1.0-beta.4
+version: 0.1.0-beta.5
 homepage: https://github.com/Aban3049
 repository: https://github.com/Aban3049/admob_nextgen
 issue_tracker: https://github.com/Aban3049/admob_nextgen/issues

@@ -1,3 +1,21 @@
+## 0.1.0-beta.5
+
+- Added Google-compatible `AppStateEventNotifier` foreground/background
+  notifications for App Open ad flows using Android's process lifecycle.
+- Updated the example App Open flow to start, subscribe to, cancel, and stop
+  `AppStateEventNotifier` instead of relying on Flutter activity lifecycle
+  events.
+- Hardened App Open and Interstitial lifecycle routing so terminal events
+  always consume and release ads, including when no listener is attached or a
+  listener throws.
+- Prevented duplicate show requests for the same App Open or Interstitial ad.
+- Detached native full-screen event callbacks whenever App Open or
+  Interstitial ads are removed.
+- Added migration documentation for moving from `google_mobile_ads` load and
+  full-screen callbacks to Future-first loading and instance listeners.
+- Added Dart and Android regression tests for app-state notifications and
+  fullscreen ad lifecycle behavior.
+
 ## 0.1.0-beta.4
 
 - Fixed Native Validator errors for banner and small native ad templates by

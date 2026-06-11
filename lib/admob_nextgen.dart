@@ -21,6 +21,7 @@ export 'src/banner/banner_ad.dart';
 export 'src/consent/consent.dart';
 export 'src/core/ad_error.dart';
 export 'src/core/ad_request.dart';
+export 'src/core/app_state_event_notifier.dart';
 export 'src/core/mobile_ads.dart';
 export 'src/core/request_configuration.dart' hide applyRequestConfiguration;
 export 'src/app_open/app_open_ad.dart';
